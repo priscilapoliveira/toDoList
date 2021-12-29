@@ -34,7 +34,7 @@ app.post("/users", (request, response) => {
     todo: [],
   });
 
-  return response.status(201).json({ message: "Usuario criado com sucesso!" });
+  return response.status(201).json({ message: "User created successfully!" });
 });
 
 app.get("/todo", checksExistsUserAccount, (request, response) => {
