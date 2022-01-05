@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 
-const { v4: uuid } = require("uuid");
+const { v4: uuidV4 } = require("uuid");
 
 const app = express();
 
@@ -25,18 +25,21 @@ function checksExistsUserAccount(request, response, next) {
 app.post("/users", (request, response) => {
   const { name, username } = request.body;
 
-  const user = users.find((user) => user.username === username);
+  const userExisits = users.find((user) => user.username === username);
 
-  if (user) return response.status(400).json({ error: "Username not found!" });
+  if (userExisits)
+    return response.status(400).json({ error: "Username alerady exists" });
 
-  users.push({
-    id: uuid(),
+  const user = {
+    id: uuidV4(),
     name,
     username,
     todos: [],
-  });
+  };
 
-  return response.status(201).json(users);
+  users.push(user);
+
+  return response.status(201).json(user);
 });
 
 app.get("/todos", checksExistsUserAccount, (request, response) => {
@@ -49,17 +52,17 @@ app.post("/todos", checksExistsUserAccount, (request, response) => {
   const { user } = request;
   const { title, deadline } = request.body;
 
-  const createNewTask = {
-    id: uuid(),
-    title: title,
+  const todo = {
+    id: uuidV4(),
+    title,
     done: false,
     deadline: new Date(deadline),
     created_at: new Date(),
   };
 
-  user.todos.push(createNewTask);
+  user.todos.push(todo);
 
-  return response.status(201).json(createNewTask);
+  return response.status(201).json(todo);
 });
 
 app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
@@ -85,7 +88,7 @@ app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
 
   if (!todo) return response.status(404).json({ error: "Todo not found!" });
 
-  todo.dono = true;
+  todo.done = true;
 
   return response.json(todo);
 });
